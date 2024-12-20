@@ -31,7 +31,7 @@ app.post("/api/v1/signin", async (req, res) => {
   console.log('username,password', username,password)
   const existingUser=await UserModel.findOne({username: username, password: password});
     if(existingUser){
-        const token=jwt.sign({_id: existingUser._id},JWT_PASSWORD, { expiresIn: "1h" });
+        const token=jwt.sign({_id: existingUser._id},JWT_PASSWORD);
         res.json({token});
     }
     else{

@@ -1,5 +1,6 @@
 import mongoose,{ model,Schema } from "mongoose";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 import { z } from "zod";
 
 dotenv.config();
@@ -14,8 +15,13 @@ async function main() {
     }
 }
 main();
-const UserSchema= new Schema({
-    userName:{type: "string" ,unique : true},
-    password: String
-}) 
-export const UserModel= model("user",UserSchema)
+const UserSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+});
+UserSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
+export const UserModel= mongoose.model("User", UserSchema);

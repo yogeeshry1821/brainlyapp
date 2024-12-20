@@ -44,7 +44,7 @@ app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, funct
     console.log('username,password', username, password);
     const existingUser = yield db_1.UserModel.findOne({ username: username, password: password });
     if (existingUser) {
-        const token = jsonwebtoken_1.default.sign({ _id: existingUser._id }, JWT_PASSWORD, { expiresIn: "1h" });
+        const token = jsonwebtoken_1.default.sign({ _id: existingUser._id }, JWT_PASSWORD);
         res.json({ token });
     }
     else {
