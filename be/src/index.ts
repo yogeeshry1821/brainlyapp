@@ -30,7 +30,7 @@ app.post("/api/v1/signin", async (req, res) => {
     const existingUser = await UserModel.findOne({ username, password });
     if (existingUser) {
         // Generate a JWT token with the user's ID.
-        const token = jwt.sign({ id: existingUser._id }, JWT_SECRET);
+        const token = jwt.sign({ id: existingUser._id }, JWT_PASSWORD);
         res.json({ token }); // Send the token in response.
     } else {
         // Send error response for invalid credentials.
