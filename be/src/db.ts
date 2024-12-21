@@ -1,27 +1,30 @@
-import mongoose,{ model,Schema } from "mongoose";
-import dotenv from "dotenv";
-import bcrypt from "bcrypt";
-import { z } from "zod";
+import mongoose, { model, Schema } from "mongoose";
 
-dotenv.config();
-const mongooseString:any=process.env.MONGOOSE_CONNECTION_STRING;
-async function main() {
-    try{
-        mongoose.connect(mongooseString);
-        console.log("connected to mongoDB");
-    }
-    catch(error){
-        console.error(error);
-    }
-}
-main();
-const UserSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+mongoose.connect("Your Connection String");
+
+const UserSchema = new Schema({
+    username: { type: String, unique: true },    password: { type: String }               
 });
-UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+
+export const UserModel = model("User", UserSchema);
+
+const ContentSchema = new Schema({
+    title: String,                          
+    Link: String,                           
+    tags: [{ type: mongoose.Types.ObjectId, ref: "tag" }], 
+    userId: [{ 
+        type: mongoose.Types.ObjectId, 
+        ref: "User", 
+        required: true
+    }],
 });
-export const UserModel= mongoose.model("User", UserSchema);
+
+export const ContentModel = model("Content", ContentSchema);
+
+const LinkSchema = new Schema({
+    hash: String,
+
+    userId: { type: mongoose.Types.ObjectId, ref: 'User', required: true, unique: true },
+});
+
+export const LinkModel = model("Links", LinkSchema);
