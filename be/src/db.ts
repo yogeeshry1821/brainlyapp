@@ -1,6 +1,18 @@
 import mongoose, { model, Schema } from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
-mongoose.connect("Your Connection String");
+const mongooseString:any=process.env.MONGOOSE_CONNECTION_STRING;
+async function main() {
+    try{
+        mongoose.connect(mongooseString);
+        console.log("connected to mongoDB");
+    }
+    catch(error){
+        console.error(error);
+    }
+}
+main();
 
 const UserSchema = new Schema({
     username: { type: String, unique: true },    password: { type: String }               

@@ -5,39 +5,41 @@ import { ContentModel, LinkModel, UserModel } from "./db";
 import { JWT_PASSWORD } from "./config";
 import { userMiddleware } from "./middleware";
 import cors from "cors";
+import bcrypt from "bcrypt";
 
 const app = express();
 app.use(express.json()); 
 app.use(cors()); 
 
 app.post("/api/v1/signup", async (req, res) => {
-    const username = req.body.username;
+    const username = req.body.username; // username is string | null | undefined
     const password = req.body.password;
 
     try {
-        await UserModel.create({ username, password });
-        res.json({ message: "User signed up" }); 
+        const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
+        await UserModel.create({ username, password: hashedPassword }); // Save hashed password
+        res.json({ message: "User signed up" });
     } catch (e) {
-        res.status(409).json({ message: "User already exists" }); 
+        console.log('e', e)
+        res.status(409).json({ message: "User already exists" });
     }
 });
 
 app.post("/api/v1/signin", async (req, res) => {
-    const username = req.body.username;
+    const username = req.body.username; // username is string | null | undefined
     const password = req.body.password;
-
-    // Find a user with the provided credentials.
-    const existingUser = await UserModel.findOne({ username, password });
+    const existingUser = await UserModel.findOne({ username }); // Find user by username
     if (existingUser) {
-        // Generate a JWT token with the user's ID.
-        const token = jwt.sign({ id: existingUser._id }, JWT_PASSWORD);
-        res.json({ token }); // Send the token in response.
-    } else {
-        // Send error response for invalid credentials.
-        res.status(403).json({ message: "Incorrect credentials" });
+        //@ts-ignore
+        const isPasswordCorrect = await bcrypt.compare(password, existingUser.password); // Compare hashed passwords
+        if (isPasswordCorrect) {
+            const token = jwt.sign({ id: existingUser._id }, JWT_PASSWORD);
+            res.json({ token });
+            return;
+        }
     }
+    res.status(403).json({ message: "Incorrect credentials" });
 });
-
 // Route 3: Add Content
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
     const { link, type, title } = req.body;
