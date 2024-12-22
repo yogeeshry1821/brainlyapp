@@ -1,6 +1,8 @@
-import mongoose, { model, Schema } from "mongoose";
+import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
+
+const { Schema, model } = mongoose;
 
 const mongooseString:any=process.env.MONGOOSE_CONNECTION_STRING;
 async function main() {
@@ -15,20 +17,21 @@ async function main() {
 main();
 
 const UserSchema = new Schema({
-    username: { type: String, unique: true },    password: { type: String }               
+    username: { type: String, unique: true, required: true },
+    password: { type: String, required: true }
 });
 
 export const UserModel = model("User", UserSchema);
 
 const ContentSchema = new Schema({
-    title: String,                          
-    Link: String,                           
-    tags: [{ type: mongoose.Types.ObjectId, ref: "tag" }], 
-    userId: [{ 
-        type: mongoose.Types.ObjectId, 
-        ref: "User", 
+    title: String,
+    link: String,
+    tags: [{ type: mongoose.Types.ObjectId, ref: "Tag" }],
+    userId: {
+        type: mongoose.Types.ObjectId,
+        ref: "User",
         required: true
-    }],
+    }
 });
 
 export const ContentModel = model("Content", ContentSchema);

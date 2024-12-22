@@ -40,13 +40,18 @@ app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
     const { username, password } = parseResult.data;
     try {
+        const existingUser = yield db_1.UserModel.findOne({ username });
+        if (existingUser) {
+            res.status(409).json({ message: "User already exists" });
+            return;
+        }
         const hashedPassword = yield bcrypt_1.default.hash(password, 10); // Hash the password
         yield db_1.UserModel.create({ username, password: hashedPassword }); // Save hashed password
         res.json({ message: "User signed up" });
     }
     catch (e) {
         console.log('e', e);
-        res.status(409).json({ message: "User already exists" });
+        res.status(500).json({ message: "Internal server error" });
     }
 }));
 app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

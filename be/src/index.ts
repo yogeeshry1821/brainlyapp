@@ -26,18 +26,24 @@ app.post("/api/v1/signup", async (req: Request, res: Response) => {
     const parseResult = signupSchema.safeParse(req.body);
     if (!parseResult.success) {
         res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
-        return;
+        return 
     }
 
     const { username, password } = parseResult.data;
 
     try {
+        const existingUser = await UserModel.findOne({ username });
+        if (existingUser) {
+            res.status(409).json({ message: "User already exists" });
+            return 
+        }
+
         const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
         await UserModel.create({ username, password: hashedPassword }); // Save hashed password
         res.json({ message: "User signed up" });
     } catch (e) {
-        console.log('e', e)
-        res.status(409).json({ message: "User already exists" });
+        console.log('e', e);
+        res.status(500).json({ message: "Internal server error" });
     }
 });
 
@@ -45,7 +51,7 @@ app.post("/api/v1/signin", async (req: Request, res: Response) => {
     const parseResult = signinSchema.safeParse(req.body);
     if (!parseResult.success) {
         res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
-        return; 
+        return 
     }
 
     const { username, password } = parseResult.data;
