@@ -6,14 +6,29 @@ import { JWT_PASSWORD } from "./config";
 import { userMiddleware } from "./middleware";
 import cors from "cors";
 import bcrypt from "bcrypt";
+import { z } from "zod";
 
 const app = express();
 app.use(express.json()); 
 app.use(cors()); 
 
+const signupSchema = z.object({
+    username: z.string().nonempty(),
+    password: z.string().min(6)
+});
+
+const signinSchema = z.object({
+    username: z.string().nonempty(),
+    password: z.string().min(6)
+});
+
 app.post("/api/v1/signup", async (req, res) => {
-    const username = req.body.username; // username is string | null | undefined
-    const password = req.body.password;
+    const parseResult = signupSchema.safeParse(req.body);
+    if (!parseResult.success) {
+        return res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+    }
+
+    const { username, password } = parseResult.data;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10); // Hash the password
@@ -26,8 +41,12 @@ app.post("/api/v1/signup", async (req, res) => {
 });
 
 app.post("/api/v1/signin", async (req, res) => {
-    const username = req.body.username; // username is string | null | undefined
-    const password = req.body.password;
+    const parseResult = signinSchema.safeParse(req.body);
+    if (!parseResult.success) {
+        return res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+    }
+
+    const { username, password } = parseResult.data;
     const existingUser = await UserModel.findOne({ username }); // Find user by username
     if (existingUser) {
         //@ts-ignore
@@ -114,4 +133,3 @@ app.get("/api/v1/brain/:shareLink", async (req, res) => {
 });
 
 app.listen(3000, () => console.log("Server is running on port 3000"));
-
