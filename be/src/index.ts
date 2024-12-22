@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import { random } from "./utils";
 import jwt from "jsonwebtoken";
 import { ContentModel, LinkModel, UserModel } from "./db";
@@ -22,10 +22,11 @@ const signinSchema = z.object({
     password: z.string().min(6)
 });
 
-app.post("/api/v1/signup", async (req, res) => {
+app.post("/api/v1/signup", async (req: Request, res: Response) => {
     const parseResult = signupSchema.safeParse(req.body);
     if (!parseResult.success) {
-        return res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+        res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+        return;
     }
 
     const { username, password } = parseResult.data;
@@ -40,10 +41,11 @@ app.post("/api/v1/signup", async (req, res) => {
     }
 });
 
-app.post("/api/v1/signin", async (req, res) => {
+app.post("/api/v1/signin", async (req: Request, res: Response) => {
     const parseResult = signinSchema.safeParse(req.body);
     if (!parseResult.success) {
-        return res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+        res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+        return; 
     }
 
     const { username, password } = parseResult.data;
@@ -59,6 +61,7 @@ app.post("/api/v1/signin", async (req, res) => {
     }
     res.status(403).json({ message: "Incorrect credentials" });
 });
+
 // Route 3: Add Content
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
     const { link, type, title } = req.body;

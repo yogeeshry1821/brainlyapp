@@ -20,12 +20,25 @@ const config_1 = require("./config");
 const middleware_1 = require("./middleware");
 const cors_1 = __importDefault(require("cors"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
+const zod_1 = require("zod");
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
+const signupSchema = zod_1.z.object({
+    username: zod_1.z.string().nonempty(),
+    password: zod_1.z.string().min(6)
+});
+const signinSchema = zod_1.z.object({
+    username: zod_1.z.string().nonempty(),
+    password: zod_1.z.string().min(6)
+});
 app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const username = req.body.username; // username is string | null | undefined
-    const password = req.body.password;
+    const parseResult = signupSchema.safeParse(req.body);
+    if (!parseResult.success) {
+        res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+        return;
+    }
+    const { username, password } = parseResult.data;
     try {
         const hashedPassword = yield bcrypt_1.default.hash(password, 10); // Hash the password
         yield db_1.UserModel.create({ username, password: hashedPassword }); // Save hashed password
@@ -37,8 +50,12 @@ app.post("/api/v1/signup", (req, res) => __awaiter(void 0, void 0, void 0, funct
     }
 }));
 app.post("/api/v1/signin", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const username = req.body.username; // username is string | null | undefined
-    const password = req.body.password;
+    const parseResult = signinSchema.safeParse(req.body);
+    if (!parseResult.success) {
+        res.status(400).json({ message: "Invalid input", errors: parseResult.error.errors });
+        return;
+    }
+    const { username, password } = parseResult.data;
     const existingUser = yield db_1.UserModel.findOne({ username }); // Find user by username
     if (existingUser) {
         //@ts-ignore
