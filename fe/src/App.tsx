@@ -1,35 +1,21 @@
+import { Signin } from "./pages/Signin"; // Importing the Signin page component
+import { Signup } from "./pages/Signup"; // Importing the Signup page component
+import { BrowserRouter, Routes, Route } from "react-router-dom"; // Importing Router components from react-router-dom for routing
+import { Dashboard } from "./pages/Dashboard"; // Importing the Dashboard page component
 
-import { useEffect,useState } from 'react';
-import './App.css'
-
+// App component to define the routing structure of the application
 function App() {
-  const [obj,setObj]=useState({
-    firstName: 'John',
-    lastName: 'Doe',
-    age: 30,
-    city: 'New York',
-    country: 'USA',
-    address:{
-      firstLine: 'John Street',
-      secondLine: 'Apt 123'
-    }
-  })
-  const handleClick=() => {
-    setObj({ ...obj, address: { ...obj.address,secondLine: 'apt 234' }});
-    console.log(obj.address.secondLine)
-  }
   return (
-    <>
-      <div>hi</div>
-      <button onClick={handleClick}>click me</button>
-      <h1>{obj.firstName}</h1>
-      <h1>{obj.lastName}</h1>
-      <h1>{obj.age}</h1>
-      <h1>{obj.address.firstLine}</h1>
-      <h1>{obj.address.secondLine}</h1>
-
-    </>
-  )
+    <BrowserRouter>
+      {/* BrowserRouter is the main wrapper for routing in React */}
+      <Routes>
+        {/* Defining the routes for each page of the application */}
+        <Route path="/signup" element={<Signup />} /> {/* Route for signup page */}
+        <Route path="/signin" element={<Signin />} /> {/* Route for signin page */}
+        <Route path="/dashboard" element={<Dashboard />} /> {/* Route for dashboard page */}
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App; // Exporting the App component as the default export
