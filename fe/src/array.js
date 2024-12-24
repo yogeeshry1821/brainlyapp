@@ -1,2 +1,7 @@
-const arr=[1,2,3,4,5,6,7,8,9]
-arr.map.polyfill
+class Animal{
+    constructor(name){
+        this.name = name;
+    }
+}
+const asd=new Animal("dog")
+console.log(asd)
